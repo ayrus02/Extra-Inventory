@@ -8,9 +8,11 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 @Mixin(PlayerInventory.class)
 public class InventoryMixin {
 
+	private int additional_slot = 36;
+
 	@ModifyArg(method = "<init>", index = 0, at = @At(value = "INVOKE", ordinal = 0, target = "Lnet/minecraft/util/collection/DefaultedList;ofSize(ILjava/lang/Object;)Lnet/minecraft/util/collection/DefaultedList;"))
 	private int modifyInvSize(int size) {
-		return 54;
+		return(54+additional_slot);
 	}
 
 }
