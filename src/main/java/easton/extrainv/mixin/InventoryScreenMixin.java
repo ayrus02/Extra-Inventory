@@ -25,16 +25,20 @@ public abstract class InventoryScreenMixin extends HandledScreen {
     @Shadow @Final private RecipeBookWidget recipeBook;
     @Shadow private boolean mouseDown;
 
-    private static final Identifier BONUS_ROWS_TEXTURE = Identifier.of("extrainv", "textures/gui/bonus_rows.png");
+    private int bonus_row_texture_height = 86;
+    private int bonus_row_slot_height = 72;
+    private int recipe_book_y_offset = 65;
+
+    private static final Identifier BONUS_ROWS_TEXTURE = Identifier.of("extrainv", "textures/gui/bonus_4_rows.png");
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void fixHeight(PlayerEntity player, CallbackInfo info) {
-        this.backgroundHeight += 50;
+        this.backgroundHeight += bonus_row_texture_height;
     }
 
     @Inject(method = "isClickOutsideBounds", at = @At("RETURN"), cancellable = true)
     private void addRows(double mouseX, double mouseY, int left, int top, int button, CallbackInfoReturnable<Boolean> info) {
-        info.setReturnValue( info.getReturnValue() && mouseY >= (double)(top + this.backgroundHeight + 36) );
+        info.setReturnValue( info.getReturnValue() && mouseY >= (double)(top + this.backgroundHeight + bonus_row_slot_height) );
     }
 
     @Inject(method = "drawBackground", at = @At("TAIL"))
@@ -44,7 +48,7 @@ public abstract class InventoryScreenMixin extends HandledScreen {
         RenderSystem.setShaderTexture(0, BONUS_ROWS_TEXTURE);
         int i = this.x;
         int j = this.y + 166;
-        context.drawTexture(BONUS_ROWS_TEXTURE, i, j, 0, 0, 176, 50);
+        context.drawTexture(BONUS_ROWS_TEXTURE, i, j, 0, 0, 176, bonus_row_texture_height);
     }
 
     public InventoryScreenMixin(ScreenHandler handler, PlayerInventory inventory, Text title) {
@@ -56,7 +60,7 @@ public abstract class InventoryScreenMixin extends HandledScreen {
         return (buttonWidget) -> {
             this.recipeBook.toggleOpen();
             this.x = this.recipeBook.findLeftEdge(this.width, this.backgroundWidth);
-            buttonWidget.setPosition(this.x + 104, this.height / 2 - 47);
+            buttonWidget.setPosition(this.x + 104, this.height / 2 - recipe_book_y_offset);
             //((TexturedButtonWidget)buttonWidget).setPos(this.x + 104, this.height / 2 - 47);
             this.mouseDown = true;
         };
@@ -64,7 +68,7 @@ public abstract class InventoryScreenMixin extends HandledScreen {
 
     @ModifyConstant(method = "init", constant = @Constant(intValue = 22, ordinal = 0))
     private int recipeBookPosFix(int og) {
-        return 47;
+        return recipe_book_y_offset;
     }
 
 }
