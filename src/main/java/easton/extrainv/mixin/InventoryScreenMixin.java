@@ -1,6 +1,7 @@
 package easton.extrainv.mixin;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.gui.screen.recipebook.RecipeBookWidget;
@@ -26,7 +27,7 @@ public abstract class InventoryScreenMixin extends HandledScreen {
     @Shadow @Final private RecipeBookWidget recipeBook;
     @Shadow private boolean mouseDown;
 
-    private static final Identifier BONUS_ROWS_TEXTURE = new Identifier("extrainv", "textures/gui/bonus_rows.png");
+    private static final Identifier BONUS_ROWS_TEXTURE = Identifier.of("extrainv", "textures/gui/bonus_rows.png");
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void fixHeight(PlayerEntity player, CallbackInfo info) {
@@ -39,25 +40,26 @@ public abstract class InventoryScreenMixin extends HandledScreen {
     }
 
     @Inject(method = "drawBackground", at = @At("TAIL"))
-    private void drawBonus(MatrixStack matrices, float delta, int mouseX, int mouseY, CallbackInfo info) {
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+    private void drawBonus(DrawContext context, float delta, int mouseX, int mouseY, CallbackInfo ci) {
+        RenderSystem.setShader(GameRenderer::getPositionTexProgram);
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         RenderSystem.setShaderTexture(0, BONUS_ROWS_TEXTURE);
         int i = this.x;
         int j = this.y + 166;
-        this.drawTexture(matrices, i, j, 0, 0, 176, 50);
+        context.drawTexture(BONUS_ROWS_TEXTURE, i, j, 0, 0, 176, 50);
     }
 
     public InventoryScreenMixin(ScreenHandler handler, PlayerInventory inventory, Text title) {
         super(handler, inventory, title);
     }
 
-    @ModifyArg(method = "init", index = 8, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/widget/TexturedButtonWidget;<init>(IIIIIIILnet/minecraft/util/Identifier;Lnet/minecraft/client/gui/widget/ButtonWidget$PressAction;)V"))
+    @ModifyArg(method = "init", index = 8, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/widget/TexturedButtonWidget;<init>(IIIILnet/minecraft/client/gui/screen/ButtonTextures;Lnet/minecraft/client/gui/widget/ButtonWidget$PressAction;)V"))
     private ButtonWidget.PressAction recipeBookPosResetter(ButtonWidget.PressAction action) {
         return (buttonWidget) -> {
             this.recipeBook.toggleOpen();
             this.x = this.recipeBook.findLeftEdge(this.width, this.backgroundWidth);
-            ((TexturedButtonWidget)buttonWidget).setPos(this.x + 104, this.height / 2 - 47);
+            buttonWidget.setPosition(this.x + 104, this.height / 2 - 47);
+            //((TexturedButtonWidget)buttonWidget).setPos(this.x + 104, this.height / 2 - 47);
             this.mouseDown = true;
         };
     }
