@@ -51,7 +51,7 @@ public abstract class InventoryScreenMixin extends HandledScreen {
         super(handler, inventory, title);
     }
 
-    @ModifyArg(method = "init", index = 8, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/widget/TexturedButtonWidget;<init>(IIIILnet/minecraft/client/gui/screen/ButtonTextures;Lnet/minecraft/client/gui/widget/ButtonWidget$PressAction;)V"))
+    @ModifyArg(method = "init", index = 5, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/widget/TexturedButtonWidget;<init>(IIIILnet/minecraft/client/gui/screen/ButtonTextures;Lnet/minecraft/client/gui/widget/ButtonWidget$PressAction;)V"))
     private ButtonWidget.PressAction recipeBookPosResetter(ButtonWidget.PressAction action) {
         return (buttonWidget) -> {
             this.recipeBook.toggleOpen();
